@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.10</version>
+        <version>3.4.4</version>
         <relativePath/>
     </parent>
     <groupId>com.empresa.proyecto</groupId>
@@ -16,21 +16,17 @@
 
     <properties>
         <java.version>17</java.version>
+        <sonar.projectKey>com.empresa.proyecto:persons-service</sonar.projectKey>
+        <sonar.host.url>http://localhost:9000</sonar.host.url>
+        <sonar.login>${env.SONAR_TOKEN}</sonar.login>
+        <sonar.test.inclusions>**/test/*.java</sonar.test.inclusions>
+        <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.exclusions>src/main/java/com/empresa/proyecto/persons/configuration/**/*</sonar.exclusions>
     </properties>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>2.5.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openapitools</groupId>
-            <artifactId>jackson-databind-nullable</artifactId>
-            <version>0.2.6</version>
         </dependency>
 
         <dependency>
@@ -47,37 +43,92 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
             <plugin>
-                <groupId>org.openapitools</groupId>
-                <artifactId>openapi-generator-maven-plugin</artifactId>
-                <version>7.5.0</version>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>generate-persons-api</id>
+                        <id>prepare-agent</id>
                         <goals>
-                            <goal>generate</goal>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>post-unit-test</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/main/resources/openapi/openapi.yml</inputSpec>
-                            <generatorName>spring</generatorName>
-                            <generateSupportingFiles>false</generateSupportingFiles>
-                            <skipOperationExample>true</skipOperationExample>
-                            <generateModelTests>false</generateModelTests>
-                            <generateApiTests>false</generateApiTests>
-                            <modelPackage>com.empresa.proyecto.persons.dto</modelPackage>
-                            <apiPackage>com.empresa.proyecto.persons.resource</apiPackage>
-                            <templateDirectory>${project.basedir}/src/main/resources/openapi/templates</templateDirectory>
-                            <apiNameSuffix>Api</apiNameSuffix>
-                            <configOptions>
-                                <legacyDiscriminatorBehavior>true</legacyDiscriminatorBehavior>
-                                <useTags>true</useTags>
-                                <sourceFolder>src/gen/java/main</sourceFolder>
-                                <useSpringBoot3>true</useSpringBoot3>
-                                <dateLibrary>string</dateLibrary>
-                                <interfaceOnly>true</interfaceOnly>
-                            </configOptions>
+                            <dataFile>target/jacoco.exec</dataFile>
+                            <outputDirectory>target/report-unit</outputDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>post-integration-test</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <dataFile>target/jacoco.exec</dataFile>
+                            <outputDirectory>target/report-integration</outputDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>merge-reports</id>
+                        <goals>
+                            <goal>merge</goal>
+                        </goals>
+                        <phase>verify</phase>
+                        <configuration>
+                            <fileSets>
+                                <fileSet>
+                                    <directory>${project.build.directory}</directory>
+                                    <includes>
+                                        <include>**/*.exec</include>
+                                    </includes>
+                                </fileSet>
+                            </fileSets>
+                            <destFile>${project.build.directory}/jacoco-merged.exec</destFile>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>report-aggregate</id>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <phase>verify</phase>
+                        <configuration>
+                            <dataFile>${project.build.directory}/jacoco-merged.exec</dataFile>
+                            <outputDirectory>${project.reporting.outputDirectory}/jacoco-aggregate</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
+                <configuration>
+                    <excludes>
+                        <exclude>com/empresa/proyecto/configuration/**/*</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
