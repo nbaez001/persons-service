@@ -1,0 +1,125 @@
+openapi: 3.0.3
+info:
+  title: Persons API
+  description: API for managing persons
+  version: 1.0.0
+servers:
+  - url: http://localhost:8091/api
+    description: Local server
+tags:
+  - name: Persons
+    description: Operations related to persons
+paths:
+  /persons:
+    get:
+      tags:
+        - Persons
+      summary: Get all persons
+      operationId: getAllPersons
+      responses:
+        "200":
+          description: Successfully retrieved list of persons
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PersonDto"
+    post:
+      tags:
+        - Persons
+      summary: Create a new person
+      operationId: createPerson
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PersonDto"
+      responses:
+        "201":
+          description: Person created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PersonDto"
+        "400":
+          description: Invalid request payload
+  /persons/{id}:
+    get:
+      tags:
+        - Persons
+      summary: Get a person by ID
+      operationId: getPersonById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Person retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PersonDto"
+        "404":
+          description: Person not found
+    put:
+      tags:
+        - Persons
+      summary: Update a person by ID
+      operationId: updatePerson
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PersonDto"
+      responses:
+        "200":
+          description: Person updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PersonDto"
+        "400":
+          description: Invalid request payload
+        "404":
+          description: Person not found
+    delete:
+      tags:
+        - Persons
+      summary: Delete a person by ID
+      operationId: deletePerson
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Person deleted successfully
+        "404":
+          description: Person not found
+components:
+  schemas:
+    PersonDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        firstName:
+          type: string
+        lastName:
+          type: string
+        age:
+          type: integer

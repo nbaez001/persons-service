@@ -1,0 +1,12 @@
+{{#isPathParam}}
+    {{^vendorExtensions.x-regex}}
+    {{#vendorExtensions.x-field-extra-annotation}}
+        {{{vendorExtensions.x-field-extra-annotation}}}
+    {{/vendorExtensions.x-field-extra-annotation}}
+    {{#useBeanValidation}}
+        {{>beanValidationPathParams}}
+    {{/useBeanValidation}}
+    {{>paramDoc}}
+    @PathVariable("{{#vendorExtensions.x-custom-name}}{{vendorExtensions.x-custom-name}}{{/vendorExtensions.x-custom-name}}{{^vendorExtensions.x-custom-name}}{{baseName}}{{/vendorExtensions.x-custom-name}}"){{>dateTimeParam}}{{#isDeprecated}} @Deprecated{{/isDeprecated}} {{>optionalDataType}} {{paramName}}
+    {{/vendorExtensions.x-regex}}
+{{/isPathParam}}
